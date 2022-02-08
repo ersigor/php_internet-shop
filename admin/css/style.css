@@ -1,0 +1,8 @@
+.admin-container {
+    display: flex;
+}
+
+.admin-input, .goods-out {
+    width: 50%;
+    padding: 45px;
+}

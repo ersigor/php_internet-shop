@@ -1,0 +1,10 @@
+.table_ {
+    display: flex;
+    flex-direction: column;
+    width:20px;
+}
+
+.btn btn-primary {
+    width: 20px;
+    height: 20px;
+}

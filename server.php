@@ -1,13 +1,9 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
-
-
-const PATH_BIG = "images/big/";
-const PATH_SMALL = "images/small/";
-
+require "functions.php";
 
 const SERVER = "localhost";
-const DB = "internet_shop";
+const DB = "test_db";
 const LOGIN = "root";
 const PASS = "";
 
@@ -15,4 +11,3 @@ const PASS = "";
 $connect = mysqli_connect(SERVER,LOGIN,PASS,DB) or die("Ошибка соединения с базой данных!");
 
 mysqli_query($connect, "SET NAMES utf8");
-

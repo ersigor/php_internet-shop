@@ -1,74 +1,145 @@
+let users = {};
+let out;
 
-let cart = {};
 
+
+//инициализация 
 function init() {
-    // вычитываем файл goods.json
-    $.getJSON("goods.json", goodsOut);
-
+    $.post("core.php", 
+            {"action":"init"
+            }, usersOut);
+    
+    
+    
+}
+function usersOut(data){
+  users = JSON.parse(data);
+  console.log(users);
+  render(users);
 }
 
-function goodsOut(data) {
-    // вывод товаров на страницу
-
-    console.log(data);
-    let out = '';
-    for (let key in data) {
-        out += '<div class="col-md-3 top_brand_left-1"><div class="hover14 column"><div class="top_brand_left_grid"><div class="top_brand_left_grid1"><figure>';
-        out += '<div class="snipcart-item block">';
-        out += '<div class="snipcart-thumb">';
-        out += '<a class= "img" href="single.php?id=' + data[key].id + '"><img title=" " alt=" " src="images/small/' + data[key].img + '"></a>';
-        out += '<p>' + data[key].title + '</p>';
-        out += '<h4>' + data[key].price + 'руб</h4>';
+function render() {
+    // вывод пользователей на страницу
+    
+    out = '<tbody class="table_> <thead> <tr> <th scope="col">#</th> <th scope="col">Имя</th> <th scope="col">Фамилия</th><th scope="col">Телефон</th><th scope="col">email</th> <th scope="col"></th></th></tr></thead></tbody>';
+    for (let i=0;i<users.length;i++) {
+        out += '<tbody class="table_>';
+        out += '<tr>';
+        out += '<th scope="row">1</th>';
+        out += '<td>'+users[i].name+'</td>';
+        out += '<td>'+users[i].surname+'</td>';
+        out += '<td>'+users[i].phone+'</td>';
+        out += '<td>'+users[i].email+'</td>';
+        out += '<td><div class="d-grid gap-2">';
+        out += '<button data-id='+users[i].id+' class="btn btn-primary change"  type="button">Редактировать</button>';
+        out += '<button data-id='+users[i].id+' class="btn btn-primary delete"  type="button">Удалить</button>';
         out += '</div>';
-        out += ' <div class="snipcart-details top_brand_home_details">';
-        out += '<button class="add-to-cart" data-id="' + key + '">Купить</button>';
-        out += '</div></div></figure></div></div></div></div>';
+        out += '</td>';
+        out += '</tr>';
+        out += '</tbody>';  
     }
-    $('.top_brands_grids').html(out);
-    $('button.add-to-cart').on('click', addToCard);
+    $('.table').html(out);
+    $('.change').on('click',change_);
+    $('.delete').on('click',delete_);
 }
+//изменение user
+function change_() {
+  let id = $(this).attr('data-id');
+  $('#exampleModal2').modal('show');
+      $('#change_user').submit(function(event) {
+        event.preventDefault();
+  var name=document.getElementById('inputname-users_').value;
+  var surname=document.getElementById('inputsurname-users_').value;
+  var phone=document.getElementById('inputphone-users_').value;
+  var email=document.getElementById('inputEmail-users_').value;
+  for (let i=0;i<users.length;i++) {
+    if (id==users[i].id) {
+      users[i].name=name;
+      users[i].surname=surname;
+      users[i].phone=phone;
+      users[i].email=email;
+                          }
+                                    }
+      render(users);
+      $.post("core.php",
+      { "action" : "update_user",
+        "id" : id,
+        "name" :   $("#name_change > input").val(),
+        "surname" : $('#surname_change > input').val(),
+        "phone" : $('#phone_change > input').val(),
+        "email" : $('#email_change > input').val()
+        });
+        $('#exampleModal2').modal('hide');
+      });
+      
+}
+  
 
-function addToCard() {
-    //добавляем товар в корзину
-    let id = $(this).attr('data-id');
 
-
-    if (cart[id] == undefined) {
-        cart[id] = 1; // если в корзине нет товара, то делаем его равным 1
-    } else {
-        cart[id]++; // если такой товар есть - увеличиваем его количество на единицу
+//удаление user
+function delete_() {
+  console.log(out);
+  let id = $(this).attr('data-id');
+  console.log(id);
+      for (let i=0;i<users.length;i++) {
+        if (id==users[i].id) {
+          console.log(users[i]);
+          users.splice(i,1);
+          render(users);}
+        console.log(users);
+        $.post("core.php",
+    { "action" : "delete_user",
+      "id" : id
+      });
     }
-
-    showMiniCart();
-    saveCart();
-}
-
-function saveCart() {
-    // сохраняем корзину в localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-}
-
-// визуализация корзины
-function showMiniCart() {
-    let out = "";
-    for (let key in cart) {
-        out += key + '----' + cart[key] + '<br>';
-    }
-    $('.mini-cart').html(out);
-}
-
-function loadCart() {
-    // проверяем есть ли в localStorage запись cart
-    if (localStorage.getItem('cart')) {
-        // если есть - расшифровываем и записываем в переменную cart
-        cart = JSON.parse(localStorage.getItem('cart'));
-        showMiniCart();
-    }
-}
+} 
+$('#form_create').submit(function(event) {
+  // $('#modal') – модальное окно, которое нужно открыть
+  event.preventDefault();
+  
+  var name=document.getElementById('inputname-users').value;
+  var surname=document.getElementById('inputsurname-users').value;
+  var phone=document.getElementById('inputphone-users').value;
+  var email=document.getElementById('inputEmail-users').value;
+  console.log(users.length-1);
+  var id = users[(users.length-1)].id;
+  id++;
+  let newuser= {
+    id: id,
+    name: name,
+    surname: surname,
+    phone: phone,
+    email: email
+  }
+  users.push(newuser);
+  render(users);
+  $.post("core.php",
+  {
+  "action" : "create_new_user",
+  "name" :   $("#name > input").val(),
+  "surname" : $('#surname > input').val(),
+  "phone" : $('#phone > input').val(),
+  "email" : $('#email > input').val()},
+  );
+  
+  $('#exampleModal1').modal('hide');
+});
+//кнопка закрытия модального окна добавления нового юзера
+$('#close_new_user_modal').click(function() {
+  $('#exampleModal1').modal('hide');
+});
+//кнопка открытия модального окна добавления нового юзера
+$('#exampleModal').click(function() {
+  $('#exampleModal1').modal('show');
+});
+//кнопка закрытия модального окна изменения нового юзера
+$('#close_new_user_modal_change').click(function() {
+    $('#exampleModal2').modal('hide');
+});
 
 $(document).ready(function () {
-    init(); // запуск функции init() после загрузки страницы
-    loadCart(); // сохранение данных в корзине при перезагрузке страницы
+     init();
+
 });
 
 
